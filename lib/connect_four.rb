@@ -1,17 +1,14 @@
 # frozen_string_literal: true
 
-require 'pry'
-
 # class represents a game of ConnectFour, with the board represented with a hash
 class ConnectFour
-  WHITE_TOKEN = 'U+26AA'
-  BLACK_TOKEN = 'U+26AB'
+  WHITE_TOKEN = "\u{26AA}"
+  BLACK_TOKEN = "\u{26AB}"
   WHITE = 'White'
   BLACK = 'Black'
   WHITE_HASH = 'W'
   BLACK_HASH = 'B'
   EMPTY = 'O'
-  # FULL = 'full'
 
   def initialize(hash = { 1 => %w[O O O O O O],
                           2 => %w[O O O O O O],
@@ -29,6 +26,7 @@ class ConnectFour
   end
 
   def play_a_turn(player, column)
+    column = column.to_i
     vertical = last_open(column)
     slots = @board.fetch(column)
     slots[vertical] = player == WHITE ? WHITE_HASH : BLACK_HASH
@@ -40,15 +38,9 @@ class ConnectFour
 
   def winner
     winner = search_diagonal_left
-    return printable_name(winner) unless winner == EMPTY
-
-    winner = search_diagonal_right
-    return printable_name(winner) unless winner == EMPTY
-
-    winner = search_horizontal
-    return printable_name(winner) unless winner == EMPTY
-
-    winner = search_vertical
+    winner = search_diagonal_right if winner == EMPTY
+    winner = search_horizontal if winner == EMPTY
+    winner = search_vertical if winner == EMPTY
     return printable_name(winner) unless winner == EMPTY
 
     return 'Tie' if board_full?
@@ -96,7 +88,7 @@ class ConnectFour
     puts 'That column is full.' if column_full?(input)
   end
 
-  # private
+  private
 
   def last_open(column)
     slots = @board.fetch(column)
@@ -115,10 +107,9 @@ class ConnectFour
   end
 
   def four_in_a_row(set)
-    current = set[-1]
+    current = set[0]
     counter = 1
     set.each_with_index do |slot, index|
-      # binding.pry
       if slot == current && !index.zero?
         counter += 1
         return current if counter == 4
@@ -151,29 +142,21 @@ class ConnectFour
   end
 
   def search_diagonal_right
-    (1..4).each do |start|
-      set = []
-      vertical_counter = start
-      horizontal_counter = 0
-      until vertical_counter > 7
-        set << @board.fetch(vertical_counter)[horizontal_counter]
-        horizontal_counter += 1
-        vertical_counter += 1
-      end
-      winner = four_in_a_row(set)
-      return winner unless winner == EMPTY
-    end
-    EMPTY
+    search_diagonal((1..4), 'right')
   end
 
   def search_diagonal_left
-    (4..7).each do |start|
+    search_diagonal((4..7), 'left')
+  end
+
+  def search_diagonal(range, right_or_left)
+    range.each do |start|
       set = []
       vertical_counter = start
       horizontal_counter = 0
-      until vertical_counter < 1
+      until vertical_counter < 1 || vertical_counter > 7
         set << @board.fetch(vertical_counter)[horizontal_counter]
-        vertical_counter -= 1
+        right_or_left == 'right' ? vertical_counter += 1 : vertical_counter -= 1
         horizontal_counter += 1
       end
       winner = four_in_a_row(set)

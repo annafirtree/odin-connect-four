@@ -1,13 +1,6 @@
-# class TwoPlayerGame
-#   instance variable: whose turn it is
-#   instance variable: game(ConnectFour object)
-
-#   init should allow you to pass in game class name or game state
-#   .play
-#   use main.rb's keep_playing and ask_for_valid_input private methods
 # frozen_string_literal: true
 
-require './connect_four'
+require './lib/connect_four'
 
 # class handles switching between players
 class TwoPlayerGame
@@ -47,7 +40,6 @@ class TwoPlayerGame
     until @game.valid_input?(input)
       puts "#{@game.message_to_ask_for_input}"
       input = gets.chomp
-      # return STOP_GAME_TO_SAVE if input.downcase == 'save'
 
       @game.invalid_input_message(input) unless @game.valid_input?(input)
     end
@@ -61,5 +53,3 @@ end
 
 game = TwoPlayerGame.new
 game.play
-
-# puts [1..7].include?(5)
